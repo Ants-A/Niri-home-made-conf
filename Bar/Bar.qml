@@ -4,6 +4,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.UPower
 import Quickshell.Services.SystemTray
+//Homemade files
+import "./TrayIcons"
 
 
 Rectangle{
@@ -23,29 +25,9 @@ Rectangle{
     Row {
       spacing: 6
 
-      Repeater {
-        model: SystemTray.items
+      TrayIcons {}
 
-          delegate: IconImage {
-            required property SystemTrayItem modelData
-            source: modelData.icon
-            width: 20
-            height: 20
-            MouseArea {
-              anchors.fill: parent
-              acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-              onClicked: mouse => {
-                if (mouse.button === Qt.LeftButton)
-                    modelData.activate()
-                else if (mouse.button === Qt.RightButton)
-                    modelData.display(parent)
-              }
-            }
-          }
-      }
-
-      Rectangle {
+      Rectangle { //Battery box
         width: 65
         height: 24
         color: "transparent"
@@ -59,7 +41,7 @@ Rectangle{
           anchors.centerIn: parent
           color: "white"
           property var device: UPower.devices.values[0]
-          text: (device?.state === UPowerDeviceState.Charging ? "\udb85\udc0b" : "") +
+          text: (device?.state === UPowerDeviceState.Charging ? "\udb85\udc0b " : "") +
                 Math.round((device?.percentage ?? 0) * 100) + "%"
           font.pixelSize: 18
         }
