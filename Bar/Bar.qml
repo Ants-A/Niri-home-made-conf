@@ -14,6 +14,10 @@ Rectangle{
   color: "#000000"
   opacity: 0.75
 
+  SystemClock { 
+    id: clock
+    precision: SystemClock.Seconds
+  }
 
   RowLayout {
     anchors.fill: parent
@@ -25,7 +29,7 @@ Rectangle{
     Row {
       spacing: 6
 
-      TrayIcons {}
+      //TrayIcons {}
 
       Rectangle { //Battery box
         width: 65
@@ -44,6 +48,19 @@ Rectangle{
           text: (device?.state === UPowerDeviceState.Charging ? "\udb85\udc0b " : "") +
                 Math.round((device?.percentage ?? 0) * 100) + "%"
           font.pixelSize: 18
+        }
+      }
+
+      Rectangle {
+        width: 100
+        height: 24
+        color: "transparent"
+        Text { //System clock
+          id: clockText
+          anchors.centerIn: parent
+          color: "white"
+          text: Qt.formatDateTime(clock.date, "ddd hh:mm")
+          font.pixelSize: 22
         }
       }
     }
