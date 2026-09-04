@@ -17,12 +17,14 @@ Rectangle{
     Rectangle {
       anchors {
         right: parent.right
+        verticalCenter: parent
+        rightMargin: 20
       }
-      width: 50
-      height: 25
+      width: 65
+      height: 24
       color: "transparent"
       border.color: "white"
-      border.width: 2
+      border.width: 1
       radius: 5
       Text {
         anchors {
