@@ -15,7 +15,7 @@ ShellRoot {
         left: true
         right: true
       }
-      implicitHeight: 30
+      implicitHeight: 36
       color: "transparent"
 
       Bar {

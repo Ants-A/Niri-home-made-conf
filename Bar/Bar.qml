@@ -10,9 +10,15 @@ import "./TrayIcons"
 
 Rectangle{
   Component.onCompleted: console.log(SystemTray.items)
-  anchors.fill: parent
+  anchors {
+    fill: parent
+    bottomMargin: 4
+    leftMargin: 6
+    rightMargin: 6
+  }
   color: "#000000"
   opacity: 0.75
+  radius: 16
 
   SystemClock { 
     id: clock
