@@ -2,9 +2,14 @@
 import Quickshell // for PanelWindow
 import QtQuick // for Text
 import "./Bar"
+import "./Lock"
 
 ShellRoot {
   id: toplevel
+
+  LockScreen {
+    id: lockscreen
+  }
 
   Variants {
     model: Quickshell.screens

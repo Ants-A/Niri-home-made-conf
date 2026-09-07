@@ -17,7 +17,7 @@ Rectangle{
     rightMargin: 6
   }
   color: "#000000"
-  opacity: 0.75
+  opacity: 0.69
   radius: 16
 
   SystemClock { 
