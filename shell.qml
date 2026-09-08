@@ -1,14 +1,21 @@
 //@ pragma UseQApplication
 import Quickshell // for PanelWindow
 import QtQuick // for Text
+import Quickshell.Io
 import "./Bar"
 import "./Lock"
+
 
 ShellRoot {
   id: toplevel
 
   LockScreen {
-    id: lockscreen
+    id: lock
+  }
+  
+  IpcHandler {
+    target: "lock"
+    function lock(): void {lock.locked = true;}
   }
 
   Variants {

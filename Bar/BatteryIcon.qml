@@ -18,29 +18,33 @@ Rectangle { //Battery box
     property bool charging: device?.state === UPowerDeviceState.Charging
 
     property int barCount: {
-        if (pct >= 100) return 5
-        else if (pct >= 75) return 4
-        else if (pct >= 50) return 3
-        else if (pct >= 25) return 2
+        if (pct >= 90) return 5
+        else if (pct >= 70) return 4
+        else if (pct >= 40) return 3
+        else if (pct >= 20) return 2
         else return 1
     }
 
     property color barColor: {
-        if (barCount === 5) return "#00FF00"      // bright green
-        else if (barCount === 4) return "#6B8E23" // yellowish dark green
-        else if (barCount === 3) return "#9B8B00" // dark yellow
-        else if (barCount === 2) return "#8B0000" // dark red
+        if (pct == 100) return "#00FF00"      // bright green
+        else if (pct >= 70) return "#6B8E23" // yellowish dark green
+        else if (pct >= 40) return "#9B8B00" // dark yellow
+        else if (pct >= 20) return "#8B0000" // dark red
         else return "#4B0000"                     // darkest red
     }
 
     RowLayout {
         anchors.fill: parent
         anchors.margins: batteryBox.border.width
+        anchors.leftMargin: 5
+        anchors.rightMargin: 5
         spacing: 2
 
         Repeater {
             model: 5
             Rectangle {
+                Layout.bottomMargin: 2
+                Layout.topMargin: 2
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 color: index < batteryBox.barCount ? batteryBox.barColor : "transparent"
@@ -50,7 +54,7 @@ Rectangle { //Battery box
 
     Text {
         anchors.centerIn: parent
-        visible: batteryBox.barCount < 5
+        visible: pct < 100
         color: "white"
         font.pixelSize: 14
         font.bold: true

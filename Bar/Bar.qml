@@ -5,8 +5,8 @@ import QtQuick.Layouts
 import Quickshell.Services.UPower
 import Quickshell.Services.SystemTray
 //Homemade files
-import "./TrayIcons"
-import "./BatteryIcon"
+import "TrayIcons.qml"
+import "BatteryIcon.qml"
 
 
 Rectangle{
