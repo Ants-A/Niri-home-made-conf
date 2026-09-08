@@ -6,6 +6,7 @@ import Quickshell.Services.UPower
 import Quickshell.Services.SystemTray
 //Homemade files
 import "./TrayIcons"
+import "./BatteryIcon"
 
 
 Rectangle{
@@ -18,7 +19,7 @@ Rectangle{
   }
   color: "#000000"
   opacity: 0.69
-  radius: 16
+  radius: 12
 
   SystemClock { 
     id: clock
@@ -28,34 +29,16 @@ Rectangle{
   RowLayout {
     anchors.fill: parent
     anchors.rightMargin: 20
-    spacing: 12
+    spacing: 24
 
     Item { Layout.fillWidth: true } // pushes everything to the right
 
     Row {
-      spacing: 6
+      spacing: 20
 
       //TrayIcons {}
 
-      Rectangle { //Battery box
-        width: 65
-        height: 24
-        color: "transparent"
-        border.color: "white"
-        border.width: 1
-        radius: 5
-
-        Layout.alignment: Qt.AlignVCenter
-
-        Text {
-          anchors.centerIn: parent
-          color: "white"
-          property var device: UPower.devices.values[0]
-          text: (device?.state === UPowerDeviceState.Charging ? "\udb85\udc0b " : "") +
-                Math.round((device?.percentage ?? 0) * 100) + "%"
-          font.pixelSize: 18
-        }
-      }
+      BatteryIcon {}
 
       Rectangle {
         width: 100
