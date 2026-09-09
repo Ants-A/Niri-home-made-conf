@@ -4,6 +4,7 @@ import QtQuick // for Text
 import Quickshell.Io
 import "./Bar"
 import "./Lock"
+import "./PopUps"
 
 
 ShellRoot {
@@ -34,5 +35,9 @@ ShellRoot {
         id: bar
       }
     }
+  }
+
+  VolumeOSD {
+    id: volumeBox
   }
 }
