@@ -7,6 +7,8 @@ import Qt5Compat.GraphicalEffects
 import Quickshell.Services.Pam
 import ".."
 
+
+
 WlSessionLock {
   id: lock
   locked: false
@@ -42,6 +44,7 @@ WlSessionLock {
         border.color: Colors.md3.on_primary
         radius: 30
       }
+      placeholderTextColor: Colors.md3.primary
       rightPadding: 30
       leftPadding: 30
       placeholderText: "Don't touch it"
@@ -49,23 +52,47 @@ WlSessionLock {
       height: 50
       color: Colors.md3.primary
       echoMode: TextInput.Password
-      onTextChanged: color = Colors.md3.primary
+      onTextChanged: placeholderTextColor = Colors.md3.primary
       onAccepted: pam.start()
     }
+
+    property int failedAttempts: 0
+    property int maxAttempts: 3
+
+    Timer {
+      id: lockTimer
+      interval: 10000
+      repeat: false
+      running: false
+      onTriggered: {
+        failedAttempts = 0
+        textBox.enabled = true
+      }
+    }
+
 
     PamContext {
       id: pam
       config: "login"
-      onPamMessage: {
-        if (responseRequired) pam.respond(textBox.text)
+      onPamMessage: (message, style) => {
+        if (pam.responseRequired) {pam.respond(textBox.text)}
       }
       onCompleted: (result) => {
         if (result === PamResult.Success) {
           lock.locked = false
-        } else {
+        }
+        else {
+          failedAttempts++
           textBox.text = ""
-          textBox.placeholderText = "Stuuupid"
-          textBox.color = Colors.md3.error
+          if (failedAttempts >= maxAttempts) {
+            textBox.placeholderText = "Awww, you got locked out"
+            textBox.placeholderTextColor = Colors.md3.error
+            textBox.enabled = false
+            lockTimer.start()
+          } else {
+            textBox.placeholderText = "Stuuupid"
+            textBox.placeholderTextColor = Colors.md3.error
+          }
         }
       }
     }
