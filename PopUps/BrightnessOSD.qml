@@ -1,28 +1,51 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
+import Quickshell.Io
 import Quickshell.Widgets
 import ".."
 
 Scope {
 	id: root
 
-	// Bind the pipewire node so its volume will be tracked
-	PwObjectTracker {
-		objects: [ Pipewire.defaultAudioSink ]
+	property bool shouldShowOsd: false
+	property real brightness: 0 // 0..1
+
+	// Current brightness value
+	FileView {
+		id: brightnessFile
+		path: "/sys/class/backlight/amdgpu_bl1/brightness"
+
+		onLoaded: root.updateBrightness()
 	}
 
-	Connections {
-		target: Pipewire.defaultAudioSink?.audio
+	// Max brightness value (read once, doesn't change)
+	FileView {
+		id: maxBrightnessFile
+		path: "/sys/class/backlight/amdgpu_bl1/max_brightness"
 
-		function onVolumeChanged() {
+		onLoaded: root.updateBrightness()
+	}
+
+	function updateBrightness() {
+		const cur = parseInt(brightnessFile.text());
+		const max = parseInt(maxBrightnessFile.text());
+
+		if (!isNaN(cur) && !isNaN(max) && max > 0) {
+			root.brightness = cur / max;
+		}
+	}
+
+	// Called via: qs ipc call brightness trigger
+	IpcHandler {
+		target: "brightness"
+
+		function trigger(): void {
+			brightnessFile.reload();
 			root.shouldShowOsd = true;
 			hideTimer.restart();
 		}
 	}
-
-	property bool shouldShowOsd: false
 
 	Timer {
 		id: hideTimer
@@ -31,8 +54,6 @@ Scope {
 	}
 
 	// The OSD window will be created and destroyed based on shouldShowOsd.
-	// PanelWindow.visible could be set instead of using a loader, but using
-	// a loader will reduce the memory overhead when the window isn't open.
 	LazyLoader {
 		active: root.shouldShowOsd
 
@@ -61,12 +82,12 @@ Scope {
 						fill: parent
 						leftMargin: 10
 						rightMargin: 15
-          }
-          spacing: 10
+					}
+					spacing: 10
 
 					IconImage {
 						implicitSize: 30
-						source: Quickshell.iconPath("audio-volume-high-symbolic")
+						source: Quickshell.iconPath("brightness-high-symbolic")
 					}
 
 					Rectangle {
@@ -75,7 +96,7 @@ Scope {
 
 						implicitHeight: 10
 						radius: 3
-            color: Colors.md3.background
+						color: Colors.md3.background
 
 						Rectangle {
 							anchors {
@@ -83,20 +104,21 @@ Scope {
 								top: parent.top
 								bottom: parent.bottom
 							}
-            	color: Colors.md3.primary
+							color: Colors.md3.primary
 
-							implicitWidth: parent.width * (Pipewire.defaultAudioSink?.audio.volume ?? 0)
+							implicitWidth: parent.width * root.brightness
 							radius: parent.radius
 						}
-          }
-          Text {
-            text: Math.round((Pipewire.defaultAudioSink?.audio.volume ?? 0) * 100)
-            color: Colors.md3.primary
-            font.pixelSize: 18
-            font.bold: true
-          }
+					}
+					Text {
+						text: Math.round(root.brightness * 100)
+						color: Colors.md3.primary
+						font.pixelSize: 18
+						font.bold: true
+					}
 				}
 			}
 		}
 	}
 }
+

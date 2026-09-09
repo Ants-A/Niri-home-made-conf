@@ -40,4 +40,9 @@ ShellRoot {
   VolumeOSD {
     id: volumeBox
   }
+
+
+  BrightnessOSD {
+    id: brightnessBox
+  }
 }
