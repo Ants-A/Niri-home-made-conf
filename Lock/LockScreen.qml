@@ -4,8 +4,8 @@ import Quickshell.Wayland
 import QtQuick.Controls
 import Quickshell.Io
 import Qt5Compat.GraphicalEffects
+import Quickshell.Services.Pam
 import ".."
-
 
 WlSessionLock {
   id: lock
@@ -15,9 +15,7 @@ WlSessionLock {
     Image {
       id: wallpaper
       fillMode: Image.PreserveAspectCrop
-      anchors {
-        fill: parent
-      }
+      anchors.fill: parent
       source: "/home/ant/.config/quickshell/assets/Wallpaper"
       asynchronous: true
     }
@@ -27,21 +25,18 @@ WlSessionLock {
       radius: 32
       samples: 32
     }
-
     color: "#000000"
-    Button {
-      text: "unlock me"
-      onClicked: lock.locked = false
-    }
+
 
     TextField {
+      id: textBox
       anchors {
         horizontalCenter: parent.horizontalCenter
         bottom: parent.bottom
         bottomMargin: 20
       }
       focus: true
-      background: Rectangle{
+      background: Rectangle {
         color: Colors.md3.background
         border.width: 5
         border.color: Colors.md3.on_primary
@@ -53,9 +48,26 @@ WlSessionLock {
       width: 300
       height: 50
       color: Colors.md3.primary
-      echoMode: TextInput.Password  
+      echoMode: TextInput.Password
+      onTextChanged: color = Colors.md3.primary
+      onAccepted: pam.start()
+    }
+
+    PamContext {
+      id: pam
+      config: "login"
+      onPamMessage: {
+        if (responseRequired) pam.respond(textBox.text)
+      }
+      onCompleted: (result) => {
+        if (result === PamResult.Success) {
+          lock.locked = false
+        } else {
+          textBox.text = ""
+          textBox.placeholderText = "Stuuupid"
+          textBox.color = Colors.md3.error
+        }
+      }
     }
   }
 }
-
-
