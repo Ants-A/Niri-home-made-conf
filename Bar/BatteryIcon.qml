@@ -5,7 +5,7 @@ import Quickshell.Services.UPower
 Rectangle { //Battery box
     id: batteryBox
     width: 65
-    height: 24
+    height: 22
     color: "transparent"
     border.color: "white"
     border.width: 2

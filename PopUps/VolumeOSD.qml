@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland 
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import ".."
@@ -20,13 +21,18 @@ Scope {
 			root.shouldShowOsd = true;
 			hideTimer.restart();
 		}
+
+		function onMutedChanged() {
+			root.shouldShowOsd = true;
+			hideTimer.restart();
+		}
 	}
 
 	property bool shouldShowOsd: false
 
 	Timer {
 		id: hideTimer
-		interval: 1000
+		interval: 1500
 		onTriggered: root.shouldShowOsd = false
 	}
 
@@ -39,6 +45,7 @@ Scope {
 		PanelWindow {
 			// Since the panel's screen is unset, it will be picked by the compositor
 			// when the window is created. Most compositors pick the current active monitor.
+      WlrLayershell.layer: WlrLayer.Overlay
 
 			anchors.bottom: true
 			margins.bottom: screen.height / 15
@@ -66,7 +73,11 @@ Scope {
 
 					IconImage {
 						implicitSize: 30
-						source: Quickshell.iconPath("audio-volume-high-symbolic")
+						source: Quickshell.iconPath(
+							Pipewire.defaultAudioSink?.audio.muted ?? false
+								? "audio-volume-muted-symbolic"
+								: "audio-volume-high-symbolic"
+						)
 					}
 
 					Rectangle {
@@ -85,13 +96,13 @@ Scope {
 							}
             	color: Colors.md3.primary
 
-							implicitWidth: parent.width * (Pipewire.defaultAudioSink?.audio.volume ?? 0)
+							implicitWidth: parent.width * ((Pipewire.defaultAudioSink?.audio.muted ?? false) ? 0 : (Pipewire.defaultAudioSink?.audio.volume ?? 0))
 							radius: parent.radius
 						}
           }
           Text {
             text: Math.round((Pipewire.defaultAudioSink?.audio.volume ?? 0) * 100)
-            color: Colors.md3.primary
+            color: "#eff0f1"
             font.pixelSize: 18
             font.bold: true
           }

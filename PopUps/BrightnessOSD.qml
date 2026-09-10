@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Widgets
 import ".."
@@ -49,7 +50,7 @@ Scope {
 
 	Timer {
 		id: hideTimer
-		interval: 1000
+		interval: 1500
 		onTriggered: root.shouldShowOsd = false
 	}
 
@@ -60,6 +61,7 @@ Scope {
 		PanelWindow {
 			// Since the panel's screen is unset, it will be picked by the compositor
 			// when the window is created. Most compositors pick the current active monitor.
+      WlrLayershell.layer: WlrLayer.Overlay
 
 			anchors.bottom: true
 			margins.bottom: screen.height / 15
@@ -112,7 +114,7 @@ Scope {
 					}
 					Text {
 						text: Math.round(root.brightness * 100)
-						color: Colors.md3.primary
+						color: "#eff0f1"
 						font.pixelSize: 18
 						font.bold: true
 					}
