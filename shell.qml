@@ -5,6 +5,7 @@ import Quickshell.Io
 import "./Bar"
 import "./Lock"
 import "./PopUps"
+import "./Notifications"
 
 
 ShellRoot {
@@ -44,5 +45,9 @@ ShellRoot {
 
   BrightnessOSD {
     id: brightnessBox
+  }
+
+  NotServer {
+    id: notserver
   }
 }
