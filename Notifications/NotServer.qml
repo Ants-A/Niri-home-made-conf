@@ -1,12 +1,17 @@
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
 import QtQuick.Layouts
+import QtQml.Models
 import ".."
 
 Scope {
   id: root
+
+  property alias history: history 
+  ListModel { id: history }
 
   NotificationServer {
     id: server
@@ -14,13 +19,22 @@ Scope {
     actionsSupported: true
     bodySupported: true
     imageSupported: true
+
     onNotification: n => {
+      history.insert(0, {
+        summary: n.summary,
+        body: n.body,
+        appName: n.appName,
+        urgency: n.urgency,
+        actions: n.actions,
+        time: Qt.formatDateTime(new Date(), "HH:mm")
+      })
       n.tracked = true
-      console.log("got:", n.summary, "---", n.body)
     }
   }
 
-  PanelWindow {
+  
+  PanelWindow { //The notification pop-ups
     anchors {
       bottom: true
       right: true
@@ -31,7 +45,7 @@ Scope {
       right: 18
     }
 
-    width: 300
+    width: 400
     implicitHeight: colum.implicitHeight
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore

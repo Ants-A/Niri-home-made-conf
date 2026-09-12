@@ -43,8 +43,6 @@ Rectangle {
         font.bold: true
         font.pixelSize: 18
       }
-
-
       Text {
         Layout.fillWidth: true
         visible: text  !== ""
@@ -57,17 +55,16 @@ Rectangle {
   MouseArea {
     anchors.fill: parent
     onClicked: {
-      for (let action of card.modelData.actions){
+      for (let action of (card.modelData.actions || [])) {
         action.invoke()
-        console.log(action)
       }
+      card.modelData.dismiss()
     } 
   }
 
-
   Timer {
     id: timeoutTimer
-    interval: 3000
+    interval: 5000
     running: true
     repeat: false
     onTriggered: card.modelData.expire()

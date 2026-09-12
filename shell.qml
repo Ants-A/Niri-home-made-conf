@@ -7,7 +7,6 @@ import "./Lock"
 import "./PopUps"
 import "./Notifications"
 
-
 ShellRoot {
   id: toplevel
 
@@ -19,6 +18,12 @@ ShellRoot {
     target: "lock"
     function lock(): void {lock.locked = true;}
   }
+  IpcHandler {
+    target: "notifications"
+    function toggle() : void { centercontrol.centerOpen = !centercontrol.centerOpen }
+  }
+
+
 
   Variants {
     model: Quickshell.screens
@@ -49,5 +54,10 @@ ShellRoot {
 
   NotServer {
     id: notserver
+  }
+
+  CenterControl {
+    id: centercontrol
+    notServer: notserver
   }
 }

@@ -43,14 +43,6 @@ Rectangle{
 
       //TrayIcons {}
 
-      /*
-      IconImage {
-        id: icon
-        implicitSize: 18
-        visible: Pipewire.defaultAudioSink.audio.muted
-        source: Quickshell.iconPath("audio-volume-muted-symbolic")
-      }
-      */
       Text {
         height: 24
         text: "󰖁"
