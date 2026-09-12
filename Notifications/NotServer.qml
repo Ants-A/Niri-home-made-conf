@@ -27,6 +27,7 @@ Scope {
         appName: n.appName,
         urgency: n.urgency,
         actions: n.actions,
+        obj: n,
         time: Qt.formatDateTime(new Date(), "HH:mm")
       })
       n.tracked = true
@@ -59,6 +60,7 @@ Scope {
         model: server.trackedNotifications
         delegate: PopUp {
           id: card
+          history: root.history
         }
       }
     }

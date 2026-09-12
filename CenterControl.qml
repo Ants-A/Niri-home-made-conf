@@ -92,6 +92,7 @@ PanelWindow { //The notification pop-ups
           model: notServer.history
           delegate: PopUp {
             id: card
+            history: notServer.history
             Layout.leftMargin: 10
             Layout.rightMargin: 10
           }

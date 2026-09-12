@@ -8,6 +8,7 @@ import ".."
 Rectangle {
   id: card
   required property var modelData
+  required property var history
 
   Layout.fillWidth: true
   Layout.preferredHeight: 80
@@ -59,6 +60,12 @@ Rectangle {
         action.invoke()
       }
       card.modelData.dismiss()
+      for (let i = 0; i < card.history.count; i++) {
+        if (card.history.get(i).obj === card.modelData) {
+          card.history.remove(i)
+          break
+        }
+      }
     } 
   }
 
