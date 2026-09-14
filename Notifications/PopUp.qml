@@ -56,16 +56,17 @@ Rectangle {
   MouseArea {
     anchors.fill: parent
     onClicked: {
-      for (let action of (card.modelData.actions || [])) {
-        action.invoke()
-      }
-      card.modelData.dismiss()
       for (let i = 0; i < card.history.count; i++) {
         if (card.history.get(i).obj === card.modelData) {
           card.history.remove(i)
           break
         }
       }
+
+      for (let action of (card.modelData.actions || [])) {
+        action.invoke()
+      }
+      card.modelData.dismiss()
     } 
   }
 
