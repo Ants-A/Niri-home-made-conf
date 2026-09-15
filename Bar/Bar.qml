@@ -54,7 +54,7 @@ Rectangle{
       BatteryIcon {}
 
       Rectangle { //System clock
-        implicitWidth: 145
+        implicitWidth: 155
         height: 24
         color: Colors.md3.on_primary_fixed
         radius: 12
