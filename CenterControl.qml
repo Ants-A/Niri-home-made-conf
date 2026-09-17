@@ -7,99 +7,109 @@ import QtQuick.Layouts
 import QtQml.Models
 import "./Notifications"
 
-PanelWindow { //The notification pop-ups
-  
+PanelWindow {
   property bool centerOpen: false
   property var notServer
 
   anchors {
-    bottom: true
-    right: true
     top: true
+    bottom: true
+    left: true
+    right: true
   }
 
-  margins {
-    bottom: 54
-    right: 18
-    top: 18
-  }
-
-  width: 400
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
 
-  mask: Region { item: mainRect }
+  // Only intercept input at all when the panel is open.
+  // When closed, mask has zero size => clicks pass straight through to whatever's behind.
+  mask: Region { item: centerOpen ? fullScreenCatcher : null }
 
-  Rectangle {
-    id: mainRect
-    visible: centerOpen
-    anchors {
-      top: parent.top
-      bottom: parent.bottom
-      right: parent.right
+  Item {
+    id: fullScreenCatcher
+    anchors.fill: parent
+
+    // Backdrop: catches any click that lands outside the visible drawer and closes it.
+    MouseArea {
+      anchors.fill: parent
+      onClicked: centerOpen = false
     }
-    color: "#70000000"
-    width: centerOpen ? parent.width : 0
-    height: centerOpen ? parent.height : 0
-    border.width: 3
-    border.color: Colors.md3.primary
-    radius: 12
-    Rectangle { // Notification history
+
+    Rectangle {
+      id: mainRect
+      visible: centerOpen
       anchors {
-        fill: parent
-        topMargin: 250
-        rightMargin: 10 
-        leftMargin: 10
-        bottomMargin: 10
+        top: parent.top
+        bottom: parent.bottom
+        right: parent.right
       }
-      border.width: 2
-      border.color: Colors.md3.primary_container
-      radius: 8
-      color: "#30000000"
-      ColumnLayout {
-        id: centerColumn
+      width: 400          // fixed drawer width, not parent.width anymore
+      color: "#70000000"
+      border.width: 3
+      border.color: Colors.md3.primary
+      radius: 12
+
+      // Swallow clicks inside the drawer so they don't fall through
+      // to the backdrop MouseArea and close it.
+      MouseArea {
+        anchors.fill: parent
+        onClicked: {} // do nothing, just eat the event
+      }
+
+      Rectangle { // Notification history
         anchors {
-          topMargin: 80
+          fill: parent
+          topMargin: 250
+          rightMargin: 10
+          leftMargin: 10
+          bottomMargin: 10
         }
-        width: parent.width
-        spacing: 12
+        border.width: 2
+        border.color: Colors.md3.primary_container
+        radius: 8
+        color: "#30000000"
 
-        RowLayout {
-          Layout.topMargin: 12
-          Layout.leftMargin: 12
-          Layout.rightMargin: 12
-          Layout.fillWidth: true
+        ColumnLayout {
+          id: centerColumn
+          anchors.topMargin: 80
+          width: parent.width
+          spacing: 12
 
-          Text {
+          RowLayout {
+            Layout.topMargin: 12
+            Layout.leftMargin: 12
+            Layout.rightMargin: 12
             Layout.fillWidth: true
-            text: "Notifications"
-            color: Colors.md3.primary
-            font.pixelSize: 18
-          }
 
-          Text {
-            text: "Clear All"
-            color: notServer.history.count > 0 ? Colors.md3.error : Colors.palette.neutral40
-            font.pixelSize: 18
-            MouseArea {
-              anchors.fill: parent
-              onClicked: { notServer.history.clear() }
+            Text {
+              Layout.fillWidth: true
+              text: "Notifications"
+              color: Colors.md3.primary
+              font.pixelSize: 18
+            }
+
+            Text {
+              text: "Clear All"
+              color: notServer.history.count > 0 ? Colors.md3.error : Colors.palette.neutral40
+              font.pixelSize: 18
+              MouseArea {
+                anchors.fill: parent
+                onClicked: { notServer.history.clear() }
+              }
             }
           }
-        }
 
-        Repeater {
-          model: notServer.history
-          delegate: PopUp {
-            id: card
-            history: notServer.history
-            Layout.leftMargin: 10
-            Layout.rightMargin: 10
+          Repeater {
+            model: notServer.history
+            delegate: PopUp {
+              id: card
+              history: notServer.history
+              Layout.leftMargin: 10
+              Layout.rightMargin: 10
+            }
           }
         }
       }
     }
   }
 }
-
-

@@ -8,7 +8,11 @@ import ".."
 Rectangle {
   id: card
   required property var modelData
-  required property var history
+  property var history: null
+
+  // Toast repeater: modelData IS the Notification object directly.
+  // History repeater: modelData is the ListModel row, whose "obj" field holds the real Notification.
+  readonly property var notif: (modelData && modelData.obj !== undefined) ? modelData.obj : modelData
 
   Layout.fillWidth: true
   Layout.preferredHeight: 80
@@ -30,7 +34,7 @@ Rectangle {
       Layout.alignment: Qt.AlignCenter
       fillMode: Image.PreserveAspectFit
       visible: source.toString() !== ""
-      source: card.modelData.image || card.modelData.appIcon || ""
+      source: card.notif.image || card.notif.appIcon || ""
     }
 
     ColumnLayout {
@@ -39,15 +43,15 @@ Rectangle {
 
       Text {
         Layout.fillWidth: true
-        text: card.modelData.summary
+        text: card.notif.summary
         color: "white"
         font.bold: true
         font.pixelSize: 18
       }
       Text {
         Layout.fillWidth: true
-        visible: text  !== ""
-        text: card.modelData.body
+        visible: text !== ""
+        text: card.notif.body
         color: "white"
       }
     }
@@ -56,18 +60,20 @@ Rectangle {
   MouseArea {
     anchors.fill: parent
     onClicked: {
-      for (let i = 0; i < card.history.count; i++) {
-        if (card.history.get(i).obj === card.modelData) {
-          card.history.remove(i)
-          break
+      if (card.history) {
+        for (let i = 0; i < card.history.count; i++) {
+          if (card.history.get(i).obj === card.notif) {
+            card.history.remove(i)
+            break
+          }
         }
       }
 
-      for (let action of (card.modelData.actions || [])) {
+      for (let action of (card.notif.actions || [])) {
         action.invoke()
       }
-      card.modelData.dismiss()
-    } 
+      card.notif.dismiss()
+    }
   }
 
   Timer {
@@ -75,6 +81,6 @@ Rectangle {
     interval: 5000
     running: true
     repeat: false
-    onTriggered: card.modelData.expire()
+    onTriggered: card.notif.expire()
   }
 }
