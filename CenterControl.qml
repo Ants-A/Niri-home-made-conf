@@ -42,6 +42,9 @@ PanelWindow {
         top: parent.top
         bottom: parent.bottom
         right: parent.right
+        rightMargin: 18
+        topMargin: 18
+        bottomMargin: 54
       }
       width: 400          // fixed drawer width, not parent.width anymore
       color: "#70000000"
