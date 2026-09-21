@@ -16,6 +16,8 @@ Rectangle {
 
   Layout.fillWidth: true
   Layout.preferredHeight: 80
+  implicitHeight: 80
+  implicitWidth: 400
   radius: 12
   color: "#80000000"
   border.width: 3

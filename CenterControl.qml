@@ -93,6 +93,7 @@ PanelWindow {
           id: centerColumn
           anchors.topMargin: 80
           width: parent.width
+          implicitHeight: 0
           spacing: 12
 
           RowLayout {

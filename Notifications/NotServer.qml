@@ -35,7 +35,7 @@ Scope {
   }
 
   
-  PanelWindow { //The notification pop-ups
+  PanelWindow { // The notification pop-ups
     anchors {
       bottom: true
       right: true
@@ -47,21 +47,35 @@ Scope {
     }
 
     width: 400
-    implicitHeight: colum.implicitHeight
+    implicitHeight: 900          // fixed; taller than any stack you'll realistically show
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
 
-    ColumnLayout {
-      id: colum
+    // Only the popup stack takes input; everything else is click-through
+    mask: Region { item: list }
+
+    ListView {
+      id: list
       width: parent.width
       spacing: 12
+      clip: true
+      interactive: false
+      model: server.trackedNotifications
 
-      Repeater {
-        model: server.trackedNotifications
-        delegate: PopUp {
-          id: card
-          history: root.history
+      // Anchor to the bottom of the window via an explicit height + y,
+      // so the whole stack grows upward smoothly
+      height: Math.min(contentHeight, parent.height)
+      y: parent.height - height
+
+      Behavior on height {
+        SpringAnimation {
+          spring: 4
+          damping: 0.3
         }
+      }
+
+      delegate: PopUp {
+        history: root.history
       }
     }
   }
