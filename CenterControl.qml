@@ -23,8 +23,6 @@ PanelWindow {
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
 
-  // Only intercept input at all when the panel is open.
-  // When closed, mask has zero size => clicks pass straight through to whatever's behind.
   mask: Region { item: centerOpen ? fullScreenCatcher : null }
 
   onToggle: {
@@ -40,7 +38,6 @@ PanelWindow {
     id: fullScreenCatcher
     anchors.fill: parent
 
-    // Backdrop: catches any click that lands outside the visible drawer and closes it.
     MouseArea {
       anchors.fill: parent
       onClicked: centerOpen = false
@@ -56,17 +53,15 @@ PanelWindow {
         bottomMargin: 54
       }
       x: default_x + 600
-      width: 400          // fixed drawer width, not parent.width anymore
+      width: 400
       color: "#70000000"
       border.width: 3
       border.color: Colors.md3.primary
       radius: 12
 
-      // Swallow clicks inside the drawer so they don't fall through
-      // to the backdrop MouseArea and close it.
       MouseArea {
         anchors.fill: parent
-        onClicked: {} // do nothing, just eat the event
+        onClicked: {}
       }
 
       Behavior on x {
@@ -76,7 +71,7 @@ PanelWindow {
         }
       }
 
-      Rectangle { // Notification history
+      Rectangle { //notification history
         anchors {
           fill: parent
           topMargin: 250
@@ -89,44 +84,63 @@ PanelWindow {
         radius: 8
         color: "#30000000"
 
-        ColumnLayout {
-          id: centerColumn
-          anchors.topMargin: 80
-          width: parent.width
-          implicitHeight: 0
-          spacing: 12
-
-          RowLayout {
-            Layout.topMargin: 12
-            Layout.leftMargin: 12
-            Layout.rightMargin: 12
-            Layout.fillWidth: true
-
-            Text {
-              Layout.fillWidth: true
-              text: "Notifications"
-              color: Colors.md3.primary
-              font.pixelSize: 18
-            }
-
-            Text {
-              text: "Clear All"
-              color: notServer.history.count > 0 ? Colors.md3.error : Colors.palette.neutral40
-              font.pixelSize: 18
-              MouseArea {
-                anchors.fill: parent
-                onClicked: { notServer.history.clear() }
-              }
-            }
+        RowLayout {
+          id: headerRow
+          anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+            margins: 12
           }
 
-          Repeater {
-            model: notServer.history
-            delegate: PopUp {
-              id: card
-              history: notServer.history
-              Layout.leftMargin: 10
-              Layout.rightMargin: 10
+          Text {
+            Layout.fillWidth: true
+            text: "Notifications"
+            color: Colors.md3.primary
+            font.pixelSize: 18
+          }
+
+          Text {
+            text: "Clear All"
+            color: notServer.history.count > 0 ? Colors.md3.error : Colors.palette.neutral40
+            font.pixelSize: 18
+            MouseArea {
+              anchors.fill: parent
+              onClicked: { notServer.history.clear() }
+            }
+          }
+        }
+
+        ListView {
+          id: historyListView
+          anchors {
+            top: headerRow.bottom
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+            topMargin: 12
+            bottomMargin: 12
+          }
+          clip: false
+          spacing: 12
+
+          model: notServer.history
+
+          delegate: PopUp {
+            id: card
+            width: historyListView.width - 24
+            anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
+            history: notServer.history
+          }
+
+          removeDisplaced: Transition {
+            NumberAnimation { properties: "x,y"; duration: 200 }
+          }
+
+          remove: Transition {
+            ParallelAnimation {
+              NumberAnimation { property: "opacity"; to: 0; duration: 200 }
+              NumberAnimation { properties: "x,y"; to: -100; duration: 200 }
             }
           }
         }
