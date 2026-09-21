@@ -20,7 +20,10 @@ ShellRoot {
   }
   IpcHandler {
     target: "notifications"
-    function toggle() : void { centercontrol.centerOpen = !centercontrol.centerOpen }
+    function toggle() : void { 
+      centercontrol.centerOpen = !centercontrol.centerOpen;
+      centercontrol.toggle();
+    }
   }
 
 

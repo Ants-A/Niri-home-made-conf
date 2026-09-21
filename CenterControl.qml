@@ -10,6 +10,8 @@ import "./Notifications"
 PanelWindow {
   property bool centerOpen: false
   property var notServer
+  property var default_x: 1290
+  signal toggle()
 
   anchors {
     top: true
@@ -25,6 +27,15 @@ PanelWindow {
   // When closed, mask has zero size => clicks pass straight through to whatever's behind.
   mask: Region { item: centerOpen ? fullScreenCatcher : null }
 
+  onToggle: {
+    if (centerOpen) {
+      mainRect.x = default_x
+    }
+    else {
+      mainRect.x = default_x + 600
+    }
+  }
+
   Item {
     id: fullScreenCatcher
     anchors.fill: parent
@@ -37,15 +48,14 @@ PanelWindow {
 
     Rectangle {
       id: mainRect
-      visible: centerOpen
       anchors {
         top: parent.top
         bottom: parent.bottom
-        right: parent.right
         rightMargin: 18
         topMargin: 18
         bottomMargin: 54
       }
+      x: default_x + 600
       width: 400          // fixed drawer width, not parent.width anymore
       color: "#70000000"
       border.width: 3
@@ -57,6 +67,13 @@ PanelWindow {
       MouseArea {
         anchors.fill: parent
         onClicked: {} // do nothing, just eat the event
+      }
+
+      Behavior on x {
+        SpringAnimation {
+          spring: 10
+          damping: 0.6
+        }
       }
 
       Rectangle { // Notification history
