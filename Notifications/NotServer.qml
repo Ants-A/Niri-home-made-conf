@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
@@ -10,8 +9,38 @@ import ".."
 Scope {
   id: root
 
-  property alias history: history 
+  // Notification history shown in the center control.
+  property alias history: history
   ListModel { id: history }
+
+  // Notifications currently shown as popup toasts.
+  property alias activePopups: activePopups
+  ListModel { id: activePopups }
+
+  // Parallel store of the live notification objects, newest first.
+  // ListModel.get() drops QObject values, so the popup model rows carry a
+  // plain `id` role for lookups while we keep the objects themselves here.
+  property var activeNotifs: []
+
+  readonly property int maxPopups: 4
+  readonly property int maxHistory: 20
+
+  function removePopup(notif) {
+    const notifId = notif ? notif.id : undefined
+    for (let i = 0; i < activePopups.count; i++) {
+      const row = activePopups.get(i)
+      if (notifId !== undefined && row.id === notifId) {
+        activePopups.remove(i, 1)
+        break
+      }
+    }
+    for (let i = 0; i < root.activeNotifs.length; i++) {
+      if (root.activeNotifs[i] === notif) {
+        root.activeNotifs.splice(i, 1)
+        break
+      }
+    }
+  }
 
   NotificationServer {
     id: server
@@ -21,38 +50,46 @@ Scope {
     imageSupported: true
 
     onNotification: n => {
+      // Keep the history bounded.
+      while (history.count >= root.maxHistory) history.remove(history.count - 1, 1)
+
       history.insert(0, {
         summary: n.summary,
         body: n.body,
         appName: n.appName,
         urgency: n.urgency,
         actions: n.actions,
-        obj: n,
+        notification: n,
+        id: n.id,
         time: Qt.formatDateTime(new Date(), "HH:mm")
       })
-      n.tracked = true
 
-      // 3. Prepend it to our custom popup model so it spawns at index 0 (the bottom)
-      activePopupsModel.insert(0, { "notification": n })
-      
-      // 4. Listen for when the notification gets closed/dismissed to remove it from the screen
+      // Prepend to the popup model so the newest toast appears at the bottom.
+      activePopups.insert(0, { notification: n, id: n.id })
+      root.activeNotifs.unshift(n)
+
+      // Bound the number of toasts on screen.
+      if (root.activeNotifs.length > root.maxPopups) {
+        const oldest = root.activeNotifs[root.activeNotifs.length - 1]
+        if (oldest) oldest.expire()
+      }
+      // Hard fallback: drop any excess rows (each removal still animates out
+      // via the delegate's ListView.onRemove).
+      while (activePopups.count > root.maxPopups) {
+        root.activeNotifs.pop()
+        activePopups.remove(activePopups.count - 1, 1)
+      }
+
+      // Remove the toast from the screen when the notification closes.
       n.closed.connect(function() {
-        for (let i = 0; i < activePopupsModel.count; i++) {
-          if (activePopupsModel.get(i).notification === n) {
-            activePopupsModel.remove(i, 1)
-            break
-          }
-        }
+        root.removePopup(n)
       })
+
+      n.tracked = true
     }
   }
 
-  ListModel {
-    id: activePopupsModel
-  }
-
-  
-  PanelWindow { // The notification pop-ups
+  PanelWindow { // The notification popups
     anchors {
       bottom: true
       right: true
@@ -64,11 +101,11 @@ Scope {
     }
 
     width: 400
-    implicitHeight: 900          // fixed; taller than any stack you'll realistically show
+    implicitHeight: 900 // tall enough for any realistic stack
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
 
-    // Only the popup stack takes input; everything else is click-through
+    // Only the popup stack takes input; everything else is click-through.
     mask: Region { item: list }
 
     ListView {
@@ -77,38 +114,41 @@ Scope {
       spacing: 12
       clip: false
       interactive: false
-      model: activePopupsModel
+      model: root.activePopups
       verticalLayoutDirection: ListView.BottomToTop
 
-      // Anchor to the bottom of the window via an explicit height + y,
-      // so the whole stack grows upward smoothly
+      // Grow upward from the bottom of the window.
       height: Math.min(contentHeight, parent.height)
       y: parent.height - height
 
       delegate: PopUp {
+        id: popupCard
         history: root.history
+        autoExpire: true
+
+        // Guaranteed exit animation: each removed toast animates itself out
+        // before being released from the view (works even when several
+        // notifications close at the same time).
+        ListView.onRemove: SequentialAnimation {
+          PropertyAction { target: popupCard; property: "ListView.delayRemove"; value: true }
+          ParallelAnimation {
+            NumberAnimation { target: popupCard; property: "opacity"; to: 0; duration: 200 }
+            NumberAnimation { target: popupCard; property: "x"; to: 420; duration: 200 }
+          }
+          PropertyAction { target: popupCard; property: "ListView.delayRemove"; value: false }
+        }
       }
 
       add: Transition {
-        ParallelAnimation {
-          NumberAnimation { property: "opacity"; to: 100; from: 0; duration: 200 }
-          NumberAnimation { properties: "x,y"; from:100; duration: 100 }
-        }
+        NumberAnimation { properties: "x,y"; from: 100; duration: 120 }
       }
 
       addDisplaced: Transition {
-        NumberAnimation { properties: "x,y"; duration: 200 }
+        NumberAnimation { properties: "x,y"; duration: 220 }
       }
 
       removeDisplaced: Transition {
-        NumberAnimation { properties: "x,y"; duration: 200 }
-      }
-
-      remove: Transition {
-        ParallelAnimation {
-          NumberAnimation { property: "opacity"; to: 0; duration: 200 }
-          NumberAnimation { property: "x"; to: 400; duration: 200 }
-        }
+        NumberAnimation { properties: "x,y"; duration: 220 }
       }
     }
   }

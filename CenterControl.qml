@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
@@ -71,7 +70,7 @@ PanelWindow {
         }
       }
 
-      Rectangle { //notification history
+      Rectangle { // notification history
         anchors {
           fill: parent
           topMargin: 250
@@ -121,27 +120,37 @@ PanelWindow {
             topMargin: 12
             bottomMargin: 12
           }
-          clip: false
+          clip: true
           spacing: 12
 
           model: notServer.history
 
           delegate: PopUp {
-            id: card
+            id: historyCard
             width: historyListView.width - 24
-            anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
             history: notServer.history
+            autoExpire: false
+
+            ListView.onRemove: SequentialAnimation {
+              PropertyAction { target: historyCard; property: "ListView.delayRemove"; value: true }
+              ParallelAnimation {
+                NumberAnimation { target: historyCard; property: "opacity"; to: 0; duration: 200 }
+                NumberAnimation { target: historyCard; property: "x"; to: -100; duration: 200 }
+              }
+              PropertyAction { target: historyCard; property: "ListView.delayRemove"; value: false }
+            }
+          }
+
+          add: Transition {
+            NumberAnimation { properties: "x,y"; from: 100; duration: 120 }
+          }
+
+          addDisplaced: Transition {
+            NumberAnimation { properties: "x,y"; duration: 220 }
           }
 
           removeDisplaced: Transition {
-            NumberAnimation { properties: "x,y"; duration: 200 }
-          }
-
-          remove: Transition {
-            ParallelAnimation {
-              NumberAnimation { property: "opacity"; to: 0; duration: 200 }
-              NumberAnimation { properties: "x,y"; to: -100; duration: 200 }
-            }
+            NumberAnimation { properties: "x,y"; duration: 220 }
           }
         }
       }
