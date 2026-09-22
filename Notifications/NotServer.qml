@@ -31,7 +31,24 @@ Scope {
         time: Qt.formatDateTime(new Date(), "HH:mm")
       })
       n.tracked = true
+
+      // 3. Prepend it to our custom popup model so it spawns at index 0 (the bottom)
+      activePopupsModel.insert(0, { "notification": n })
+      
+      // 4. Listen for when the notification gets closed/dismissed to remove it from the screen
+      n.closed.connect(function() {
+        for (let i = 0; i < activePopupsModel.count; i++) {
+          if (activePopupsModel.get(i).notification === n) {
+            activePopupsModel.remove(i, 1)
+            break
+          }
+        }
+      })
     }
+  }
+
+  ListModel {
+    id: activePopupsModel
   }
 
   
@@ -58,24 +75,40 @@ Scope {
       id: list
       width: parent.width
       spacing: 12
-      clip: true
+      clip: false
       interactive: false
-      model: server.trackedNotifications
+      model: activePopupsModel
+      verticalLayoutDirection: ListView.BottomToTop
 
       // Anchor to the bottom of the window via an explicit height + y,
       // so the whole stack grows upward smoothly
       height: Math.min(contentHeight, parent.height)
       y: parent.height - height
 
-      Behavior on height {
-        SpringAnimation {
-          spring: 4
-          damping: 0.3
+      delegate: PopUp {
+        history: root.history
+      }
+
+      add: Transition {
+        ParallelAnimation {
+          NumberAnimation { property: "opacity"; to: 100; from: 0; duration: 200 }
+          NumberAnimation { properties: "x,y"; from:100; duration: 100 }
         }
       }
 
-      delegate: PopUp {
-        history: root.history
+      addDisplaced: Transition {
+        NumberAnimation { properties: "x,y"; duration: 200 }
+      }
+
+      removeDisplaced: Transition {
+        NumberAnimation { properties: "x,y"; duration: 200 }
+      }
+
+      remove: Transition {
+        ParallelAnimation {
+          NumberAnimation { property: "opacity"; to: 0; duration: 200 }
+          NumberAnimation { property: "x"; to: 400; duration: 200 }
+        }
       }
     }
   }
