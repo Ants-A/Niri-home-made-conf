@@ -6,17 +6,25 @@ import ".."
 Rectangle {
   id: card
 
-  // The Notification object this card represents.
-  // Auto-bound from the ListModel "notification" role by the view delegate.
-  required property var notification
+  // Plain text/data fields, auto-bound from ListModel roles by the view
+  // delegate. Only strings/numbers/booleans — no QObjects — are ever stored
+  // in ListModel rows (ListModel drops QObject and null role values, which
+  // silently broke the summary/body text and delegate creation before).
+  required property string summary
+  required property string body
+  required property string image
+  required property int notifId
 
   // Optional history model. When set, clicking this card removes its entry
-  // from that model (used for the history panel in the center control).
+  // (found by the plain `notifId` role, which survives ListModel's copy
+  // semantics) from that model.
   property var history: null
 
-  // Whether the card should close itself after a few seconds.
-  // Only the popup toasts set this to true; history cards never auto-expire.
-  property bool autoExpire: false
+  // Optional lookup: called at click time with this card's notifId to resolve
+  // the *live* notification object (may be null if the notification is gone).
+  // Using a callback avoids storing QObjects on the card — such references
+  // dangle once the notification closes.
+  property var resolveNotif: null
 
   implicitWidth: 400
   radius: 12
@@ -33,23 +41,24 @@ Rectangle {
 
   implicitHeight: Math.max(icon.height + 20, texts.height + 20)
 
-  // Clicking a notification invokes its actions and closes it. In the history
-  // list it also removes the correct row (found by the plain `id` role, which
-  // survives ListModel's copy semantics; object identity does not) from the
-  // history model.
+  // Clicking a notification invokes its actions and closes it; in the history
+  // list it also removes the correct row from the history model.
   function activate() {
-    if (card.history && card.notification) {
+    if (card.history) {
       for (let i = 0; i < card.history.count; i++) {
-        if (card.history.get(i).id === card.notification.id) {
+        if (card.history.get(i).notifId === card.notifId) {
           card.history.remove(i, 1)
           break
         }
       }
     }
 
-    if (card.notification) {
-      for (const action of (card.notification.actions || [])) action.invoke()
-      card.notification.dismiss()
+    if (card.resolveNotif) {
+      const notif = card.resolveNotif(card.notifId)
+      if (notif) {
+        for (const action of (notif.actions || [])) action.invoke()
+        notif.dismiss()
+      }
     }
   }
 
@@ -61,7 +70,7 @@ Rectangle {
     height: 36
     fillMode: Image.PreserveAspectFit
     mipmap: true
-    source: card.notification ? (card.notification.image || card.notification.appIcon || "") : ""
+    source: card.image
     visible: source.toString() !== ""
   }
 
@@ -75,7 +84,7 @@ Rectangle {
     Text {
       id: summaryText
       width: parent.width
-      text: card.notification ? card.notification.summary : ""
+      text: card.summary
       color: "white"
       font.bold: true
       font.pixelSize: 18
@@ -87,7 +96,7 @@ Rectangle {
     Text {
       id: bodyText
       width: parent.width
-      text: card.notification ? card.notification.body : ""
+      text: card.body
       visible: text !== ""
       color: "white"
       font.pixelSize: 14
@@ -118,22 +127,5 @@ Rectangle {
     to: 1
     duration: 200
     running: false
-  }
-
-  Timer {
-    id: expireTimer
-    interval: 5000
-    running: false
-    repeat: false
-    onTriggered: {
-      if (card.notification) card.notification.expire()
-    }
-  }
-
-  onAutoExpireChanged: {
-    if (card.autoExpire) expireTimer.restart()
-  }
-  onNotificationChanged: {
-    if (card.autoExpire) expireTimer.restart()
   }
 }

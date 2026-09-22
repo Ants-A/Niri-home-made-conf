@@ -25,11 +25,17 @@ Scope {
   readonly property int maxPopups: 4
   readonly property int maxHistory: 20
 
+  // Creates the per-toast 5s auto-expire timers.
+  Component {
+    id: expireFactory
+    Timer { interval: 5000; repeat: false }
+  }
+
   function removePopup(notif) {
     const notifId = notif ? notif.id : undefined
     for (let i = 0; i < activePopups.count; i++) {
       const row = activePopups.get(i)
-      if (notifId !== undefined && row.id === notifId) {
+      if (notifId !== undefined && row.notifId === notifId) {
         activePopups.remove(i, 1)
         break
       }
@@ -40,6 +46,21 @@ Scope {
         break
       }
     }
+  }
+
+  // Resolve the live Notification object by id, or null if it is already
+  // gone. Only ever called at click/expiry time, so no stale QObject
+  // references are retained anywhere (ListModel roles are plain data only).
+  function liveNotification(id) {
+    for (let i = 0; i < root.activeNotifs.length; i++) {
+      if (root.activeNotifs[i].id === id) return root.activeNotifs[i]
+    }
+    return null
+  }
+
+  function expireId(id) {
+    const n = root.liveNotification(id)
+    if (n) n.expire()
   }
 
   NotificationServer {
@@ -53,20 +74,37 @@ Scope {
       // Keep the history bounded.
       while (history.count >= root.maxHistory) history.remove(history.count - 1, 1)
 
+      // Snapshot of the notification as PLAIN data. ListModel does not
+      // preserve QObject (or null) values in roles, so rows hold only
+      // strings/numbers and the live object lives in `activeNotifs`.
+      const image = n.image || n.appIcon || ""
+
       history.insert(0, {
+        notifId: n.id,
         summary: n.summary,
         body: n.body,
         appName: n.appName,
         urgency: n.urgency,
-        actions: n.actions,
-        notification: n,
-        id: n.id,
+        image: image,
         time: Qt.formatDateTime(new Date(), "HH:mm")
       })
 
       // Prepend to the popup model so the newest toast appears at the bottom.
-      activePopups.insert(0, { notification: n, id: n.id })
+      // Text/data only — the delegate resolves the live object via
+      // liveNotification(notifId) when a click actually needs it.
+      activePopups.insert(0, {
+        notifId: n.id,
+        summary: n.summary,
+        body: n.body,
+        image: image
+      })
       root.activeNotifs.unshift(n)
+
+      // Deterministic auto-expire for this toast (5s), independent of any
+      // delegate state. Resolves by id at fire time -> safe if already closed.
+      const expireT = expireFactory.createObject(root)
+      expireT.triggered.connect(function() { root.expireId(n.id); expireT.destroy() })
+      expireT.start()
 
       // Bound the number of toasts on screen.
       if (root.activeNotifs.length > root.maxPopups) {
@@ -124,7 +162,7 @@ Scope {
       delegate: PopUp {
         id: popupCard
         history: root.history
-        autoExpire: true
+        resolveNotif: (id) => root.liveNotification(id)
 
         // Guaranteed exit animation: each removed toast animates itself out
         // before being released from the view (works even when several

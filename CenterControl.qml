@@ -117,6 +117,7 @@ PanelWindow {
             bottom: parent.bottom
             left: parent.left
             right: parent.right
+            leftMargin: 24
             topMargin: 12
             bottomMargin: 12
           }
@@ -129,7 +130,7 @@ PanelWindow {
             id: historyCard
             width: historyListView.width - 24
             history: notServer.history
-            autoExpire: false
+            resolveNotif: (id) => notServer.liveNotification(id)
 
             ListView.onRemove: SequentialAnimation {
               PropertyAction { target: historyCard; property: "ListView.delayRemove"; value: true }
