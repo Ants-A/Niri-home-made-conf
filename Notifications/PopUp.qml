@@ -42,7 +42,11 @@ Rectangle {
   // The text column gets an explicit width so wrapMode + maximumLineCount
   // produce a deterministic laid-out height (implicit heights of wrapped
   // Text do not, which is why the card previously collapsed to 84px).
-  readonly property real textWidth: implicitWidth - textX - 10
+  // Widths come from the actual laid-out `width` (defaults to implicitWidth
+  // 400) so cards sized differently — e.g. the narrower CenterControl
+  // history card — wrap text inside themselves instead of overflowing the
+  // card edge.
+  readonly property real textWidth: Math.max(0, width - textX - 10)
 
   implicitHeight: Math.max(icon.height + 20,
                            texts.height + 20 + (actionRow.visible ? actionRow.height + 10 : 0))
@@ -111,11 +115,16 @@ Rectangle {
 
     Text {
       id: summaryText
+      objectName: "summaryText"
       width: parent.width
       text: card.summary
       color: "white"
       font.bold: true
       font.pixelSize: 18
+      // Text.Wrap wraps at word boundaries; this Qt's Text.Wrap is an alias
+      // of WrapAtWordBoundaryOrAnywhere, which also breaks *unbreakable* long
+      // words (URLs, tokens) so they never overflow the box. maximumLineCount
+      // + elide still cap the result.
       wrapMode: Text.Wrap
       maximumLineCount: 2
       elide: Text.ElideRight
@@ -123,6 +132,7 @@ Rectangle {
 
     Text {
       id: bodyText
+      objectName: "bodyText"
       width: parent.width
       text: card.body
       visible: text !== ""
@@ -157,7 +167,8 @@ Rectangle {
         objectName: "actionButton"
         height: 28
         radius: 7
-        color: Colors.md3.primary
+        // Darken the fill on hover for clear visual feedback.
+        color: hoverArea.containsMouse ? Qt.darker(Colors.md3.primary, 1.2) : Colors.md3.primary
         width: Math.min(actionLabel.implicitWidth + 24, 160)
 
         Text {
@@ -166,12 +177,16 @@ Rectangle {
           text: modelData.text
           color: Colors.md3.on_primary
           font.pixelSize: 14
+          font.bold: true
           elide: Text.ElideRight
           width: Math.min(implicitWidth, parent.width - 24)
         }
 
         MouseArea {
+          id: hoverArea
           anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
           onClicked: card.invokeAction(modelData.identifier)
         }
       }
