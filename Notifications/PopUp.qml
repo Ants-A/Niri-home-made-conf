@@ -14,6 +14,11 @@ Rectangle {
   required property string body
   required property string image
   required property int notifId
+  // Notification actions as a JSON string role (ListModel cannot hold arrays,
+  // only plain values). Parsed into `actionList` below.
+  required property string actions
+  // [{identifier, text}] parsed from the `actions` role, never QObjects.
+  readonly property var actionList: card.actions === "" ? [] : JSON.parse(card.actions)
 
   // Optional history model. When set, clicking this card removes its entry
   // (found by the plain `notifId` role, which survives ListModel's copy
@@ -39,11 +44,12 @@ Rectangle {
   // Text do not, which is why the card previously collapsed to 84px).
   readonly property real textWidth: implicitWidth - textX - 10
 
-  implicitHeight: Math.max(icon.height + 20, texts.height + 20)
+  implicitHeight: Math.max(icon.height + 20,
+                           texts.height + 20 + (actionRow.visible ? actionRow.height + 10 : 0))
 
-  // Clicking a notification invokes its actions and closes it; in the history
-  // list it also removes the correct row from the history model.
-  function activate() {
+  // Removes this card's entry from the history model, found by the plain
+  // `notifId` role (survives ListModel's copy semantics).
+  function removeRowFromHistory() {
     if (card.history) {
       for (let i = 0; i < card.history.count; i++) {
         if (card.history.get(i).notifId === card.notifId) {
@@ -52,11 +58,33 @@ Rectangle {
         }
       }
     }
+  }
 
+  // Clicking the card body dismisses the notification (and removes the
+  // history row). Actions are deliberately NOT invoked here — that would fire
+  // every action at once (e.g. Pair *and* Decline). Use the action buttons.
+  function activate() {
+    card.removeRowFromHistory()
+    if (card.resolveNotif) {
+      const notif = card.resolveNotif(card.notifId)
+      if (notif) notif.dismiss()
+    }
+  }
+
+  // A specific action button was clicked: invoke only that action, then
+  // dismiss (falls back to just removing the history row if the live
+  // notification is already gone).
+  function invokeAction(identifier) {
+    card.removeRowFromHistory()
     if (card.resolveNotif) {
       const notif = card.resolveNotif(card.notifId)
       if (notif) {
-        for (const action of (notif.actions || [])) action.invoke()
+        for (const action of (notif.actions || [])) {
+          if (action.identifier === identifier) {
+            action.invoke()
+            break
+          }
+        }
         notif.dismiss()
       }
     }
@@ -107,8 +135,47 @@ Rectangle {
   }
 
   MouseArea {
+    objectName: "cardMouseArea"
     anchors.fill: parent
     onClicked: card.activate()
+  }
+
+  // Action buttons, laid out below the text column. Declared after the
+  // full-card MouseArea so each button's MouseArea receives clicks first.
+  Row {
+    id: actionRow
+    objectName: "actionRow"
+    visible: card.actionList.length > 0
+    x: card.textX
+    y: texts.y + texts.height + 10
+    spacing: 8
+
+    Repeater {
+      model: card.actionList
+
+      delegate: Rectangle {
+        objectName: "actionButton"
+        height: 28
+        radius: 7
+        color: Colors.md3.primary
+        width: Math.min(actionLabel.implicitWidth + 24, 160)
+
+        Text {
+          id: actionLabel
+          anchors.centerIn: parent
+          text: modelData.text
+          color: Colors.md3.on_primary
+          font.pixelSize: 14
+          elide: Text.ElideRight
+          width: Math.min(implicitWidth, parent.width - 24)
+        }
+
+        MouseArea {
+          anchors.fill: parent
+          onClicked: card.invokeAction(modelData.identifier)
+        }
+      }
+    }
   }
 
   // Entrance fade, driven from the delegate so it isn't restarted by view

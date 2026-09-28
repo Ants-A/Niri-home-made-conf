@@ -79,6 +79,15 @@ Scope {
       // strings/numbers and the live object lives in `activeNotifs`.
       const image = n.image || n.appIcon || ""
 
+      // Plain string role holding the notification's actions. ListModel cannot
+      // store arrays of objects (they are dropped exactly like QObjects), so
+      // actions are JSON-serialized here and parsed by PopUp.
+      const actionList = []
+      for (const a of (n.actions || [])) {
+        actionList.push({ identifier: a.identifier, text: a.text })
+      }
+      const actions = JSON.stringify(actionList)
+
       history.insert(0, {
         notifId: n.id,
         summary: n.summary,
@@ -86,6 +95,7 @@ Scope {
         appName: n.appName,
         urgency: n.urgency,
         image: image,
+        actions: actions,
         time: Qt.formatDateTime(new Date(), "HH:mm")
       })
 
@@ -96,7 +106,8 @@ Scope {
         notifId: n.id,
         summary: n.summary,
         body: n.body,
-        image: image
+        image: image,
+        actions: actions
       })
       root.activeNotifs.unshift(n)
 

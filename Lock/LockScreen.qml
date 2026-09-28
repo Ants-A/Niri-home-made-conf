@@ -44,6 +44,7 @@ WlSessionLock {
         border.color: Colors.md3.on_primary
         radius: 30
       }
+      font.pixelSize: 20
       horizontalAlignment: TextInput.AlignHCenter
       placeholderTextColor: Colors.md3.primary
       rightPadding: 30
