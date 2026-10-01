@@ -71,14 +71,22 @@ Scope {
           }
           spacing: 10
 
-					IconImage {
-						implicitSize: 30
-						source: Quickshell.iconPath(
-							Pipewire.defaultAudioSink?.audio.muted ?? false
-								? "audio-volume-muted-symbolic"
-								: "audio-volume-high-symbolic"
-						)
-					}
+          Text {
+            Layout.preferredWidth: 30
+            horizontalAlignment: Text.AlignHCenter
+            font.family: "Symbols Nerd Font"
+            font.pixelSize: 24
+            color: "#eff0f1"
+
+            text: {
+              const audio = Pipewire.defaultAudioSink?.audio;
+              if (!audio || audio.muted || audio.volume === 0)
+                  return "\uf026";      // volume off
+              if (audio.volume < 0.5)
+                  return "\uf027";      // volume down
+              return "\uf028";          // volume up
+            }
+          }
 
 					Rectangle {
 						// Stretches to fill all left-over space

@@ -87,10 +87,14 @@ Scope {
 					}
 					spacing: 10
 
-					IconImage {
-						implicitSize: 30
-						source: Quickshell.iconPath("brightness-high-symbolic")
-					}
+          Text {
+            Layout.preferredWidth: 30
+            horizontalAlignment: Text.AlignHCenter
+            font.family: "Symbols Nerd Font"
+            font.pixelSize: 24
+            color: "#eff0f1"
+            text: "\uf185"   // sun
+          }
 
 					Rectangle {
 						// Stretches to fill all left-over space
