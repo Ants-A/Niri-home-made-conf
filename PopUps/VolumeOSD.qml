@@ -81,7 +81,7 @@ Scope {
             text: {
               const audio = Pipewire.defaultAudioSink?.audio;
               if (!audio || audio.muted || audio.volume === 0)
-                  return "\uf026";      // volume off
+                  return "󰖁";      // volume off
               if (audio.volume < 0.5)
                   return "\uf027";      // volume down
               return "\uf028";          // volume up

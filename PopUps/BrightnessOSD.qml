@@ -93,7 +93,7 @@ Scope {
             font.family: "Symbols Nerd Font"
             font.pixelSize: 24
             color: "#eff0f1"
-            text: "\uf185"   // sun
+            text: ""   // sun
           }
 
 					Rectangle {
