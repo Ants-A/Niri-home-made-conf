@@ -46,7 +46,7 @@ Rectangle{
       Text {
         height: 24
         text: "󰖁"
-        color: "#eff0f1"
+        color: Colors.md3.primary
         font.pixelSize: 18
         visible: Pipewire.defaultAudioSink.audio.muted
       }
