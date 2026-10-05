@@ -82,8 +82,6 @@ Scope {
               const audio = Pipewire.defaultAudioSink?.audio;
               if (!audio || audio.muted || audio.volume === 0)
                   return "󰖁";      // volume off
-              if (audio.volume < 0.5)
-                  return "\uf027";      // volume down
               return "\uf028";          // volume up
             }
           }
@@ -102,9 +100,9 @@ Scope {
 								top: parent.top
 								bottom: parent.bottom
 							}
-            	color: Colors.md3.primary
+              color: ((Pipewire.defaultAudioSink?.audio.muted ?? false) ?  Colors.md3.on_primary : Colors.md3.primary)
 
-							implicitWidth: parent.width * ((Pipewire.defaultAudioSink?.audio.muted ?? false) ? 0 : (Pipewire.defaultAudioSink?.audio.volume ?? 0))
+							implicitWidth: parent.width * Pipewire.defaultAudioSink?.audio.volume ?? 0
 							radius: parent.radius
 						}
           }

@@ -54,18 +54,19 @@ Rectangle{
       BatteryIcon {}
 
       Rectangle { //System clock
-        implicitWidth: 155
+        implicitWidth: 135
         height: 24
         color: Colors.md3.on_primary_fixed
         radius: 12
-        border.width: 20
-        border.color: Colors.md3.on_primary_fixed
+        border.color: Colors.md3.primary
+        border.width: 2
         Text { 
           id: clockText
           anchors.centerIn: parent
-          color: "white"
           text: Qt.formatDateTime(clock.date, "hh:mm dd MMM")
-          font.pixelSize: 22
+          font.pixelSize: 20
+          font.bold: true
+          color: Colors.palette.primary90
         }
       }
     }

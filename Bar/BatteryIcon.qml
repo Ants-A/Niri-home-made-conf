@@ -1,13 +1,14 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.UPower
+import ".."
 
 Rectangle { //Battery box
     id: batteryBox
     width: 65
-    height: 22
+    height: 24
     color: "transparent"
-    border.color: "white"
+    border.color: Colors.md3.primary
     border.width: 2
     radius: 5
     clip: true
@@ -18,19 +19,17 @@ Rectangle { //Battery box
     property bool charging: device?.state === UPowerDeviceState.Charging
 
     property int barCount: {
-        if (pct >= 90) return 5
-        else if (pct >= 70) return 4
-        else if (pct >= 40) return 3
-        else if (pct >= 20) return 2
-        else return 1
+      if (pct >= 80) return 5
+      else if (pct >= 60) return 4
+      else if (pct >= 30) return 3
+      else if (pct >= 10) return 2
+      else return 1
     }
 
     property color barColor: {
-        if (pct == 100) return "#00FF00"      // bright green
-        else if (pct >= 70) return "#6B8E23" // yellowish dark green
-        else if (pct >= 40) return "#9B8B00" // dark yellow
-        else if (pct >= 20) return "#8B0000" // dark red
-        else return "#4B0000"                     // darkest red
+      var bat_round = Math.ceil(pct / 10) * 10
+      console.log(Colors.palette["primary" + bat_round])
+      return Colors.palette["primary" + bat_round]      // bright green
     }
 
     RowLayout {
