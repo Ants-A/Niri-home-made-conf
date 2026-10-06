@@ -27,36 +27,38 @@ Rectangle { //Battery box
     }
 
     property color barColor: {
-      var bat_round = Math.ceil(pct / 10) * 10
-      console.log(Colors.palette["primary" + bat_round])
-      return Colors.palette["primary" + bat_round]      // bright green
+      var bat_round = Math.ceil(pct / 10) * 10 + 10
+      bat_round = Math.max(0, Math.min(100, bat_round))
+      return Colors.palette["primary" + bat_round]
     }
 
     RowLayout {
-        anchors.fill: parent
-        anchors.margins: batteryBox.border.width
-        anchors.leftMargin: 5
-        anchors.rightMargin: 5
-        spacing: 2
+      anchors.fill: parent
+      anchors.margins: batteryBox.border.width
+      anchors.leftMargin: 5
+      anchors.rightMargin: 5
+      spacing: 2
 
-        Repeater {
-            model: 5
-            Rectangle {
-                Layout.bottomMargin: 2
-                Layout.topMargin: 2
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: index < batteryBox.barCount ? batteryBox.barColor : "transparent"
-            }
+      Repeater {
+        model: 5
+        Rectangle {
+          Layout.bottomMargin: 2
+          Layout.topMargin: 2
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: index < batteryBox.barCount ? batteryBox.barColor : "transparent"
         }
+      }
     }
 
     Text {
-        anchors.centerIn: parent
-        visible: pct < 100
-        color: "white"
-        font.pixelSize: 14
-        font.bold: true
-        text: (batteryBox.charging ? "\udb85\udc0b " : "") + Math.round(batteryBox.pct) + "%"
+      anchors.centerIn: parent
+      visible: pct < 100
+      color: Colors.palette.primary90
+      font.pixelSize: 14
+      font.bold: true
+      style: Text.Outline
+      styleColor: "black"
+      text: (batteryBox.charging ? "\udb85\udc0b " : "") + Math.round(batteryBox.pct) + "%"
     }
 }

@@ -18,7 +18,7 @@ Rectangle{
     leftMargin: 6
     rightMargin: 6
   }
-  color: "#000000"
+  color: Colors.md3.background_dark
   opacity: 0.69
   radius: 12
 
