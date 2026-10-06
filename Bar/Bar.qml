@@ -56,8 +56,8 @@ Rectangle{
       Rectangle { //System clock
         implicitWidth: 135
         height: 24
-        color: Colors.md3.on_primary_fixed
-        radius: 12
+        color: "transparent"
+        radius: 8
         border.color: Colors.md3.primary
         border.width: 2
         Text { 
