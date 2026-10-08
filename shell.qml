@@ -2,6 +2,7 @@
 import Quickshell // for PanelWindow
 import QtQuick // for Text
 import Quickshell.Io
+import Quickshell.Wayland
 import "./Bar"
 import "./Lock"
 import "./PopUps"
@@ -37,9 +38,11 @@ ShellRoot {
         left: true
         right: true
       }
+      required property var modelData
+      screen: modelData
       implicitHeight: 36
       color: "transparent"
-
+      
       Bar {
         id: bar
       }
