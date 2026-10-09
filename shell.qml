@@ -38,6 +38,12 @@ ShellRoot {
         left: true
         right: true
       }
+      margins {
+        bottom: 2
+        left: 3
+        right: 3
+      }
+      WlrLayershell.namespace: "qs-bar"
       required property var modelData
       screen: modelData
       implicitHeight: 36
