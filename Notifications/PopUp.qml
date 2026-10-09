@@ -34,11 +34,11 @@ Rectangle {
   implicitWidth: 512
   radius: 12
   color: "#80000000"
-  border.width: 4
+  border.width: 2
   border.color: Colors.md3.primary
 
   // Left edge of the text column (moves right when an icon is shown).
-  readonly property real textX: icon.visible ? 10 + icon.width + 10 : 10
+  readonly property real textX: icon.visible ? 24 + icon.width + 24 : 10
   // The text column gets an explicit width so wrapMode + maximumLineCount
   // produce a deterministic laid-out height (implicit heights of wrapped
   // Text do not, which is why the card previously collapsed to 84px).
@@ -157,7 +157,7 @@ Rectangle {
     objectName: "actionRow"
     visible: card.actionList.length > 0
     x: card.textX
-    y: texts.y + texts.height + 14
+    y: texts.y + texts.height + 8
     spacing: 12
 
     Repeater {

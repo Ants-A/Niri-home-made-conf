@@ -35,7 +35,7 @@ WlSessionLock {
       anchors {
         horizontalCenter: parent.horizontalCenter
         bottom: parent.bottom
-        bottomMargin: 20
+        bottomMargin: 52
       }
       focus: true
       background: Rectangle {
@@ -46,11 +46,11 @@ WlSessionLock {
       }
       font.pixelSize: 20
       placeholderTextColor: Colors.md3.primary
-      rightPadding: 30
-      leftPadding: 30
+      rightPadding: 52
+      leftPadding: 52
       placeholderText: "Don't touch it"
-      width: 300
-      height: 50
+      width: 512
+      height: 81
       color: Colors.md3.primary
       echoMode: TextInput.Password
       onTextChanged: placeholderTextColor = Colors.md3.primary
