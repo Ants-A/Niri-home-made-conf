@@ -9,8 +9,9 @@ import "./Notifications"
 PanelWindow {
   property bool centerOpen: false
   property var notServer
-  property var default_x: 1290
+  property var default_x: 1630
   signal toggle()
+  WlrLayershell.namespace: "qs-bar"
 
   anchors {
     top: true
@@ -29,7 +30,7 @@ PanelWindow {
       mainRect.x = default_x
     }
     else {
-      mainRect.x = default_x + 600
+      mainRect.x = default_x + 1000
     }
   }
 
@@ -49,9 +50,9 @@ PanelWindow {
         bottom: parent.bottom
         rightMargin: 18
         topMargin: 18
-        bottomMargin: 54
+        bottomMargin: 60
       }
-      x: default_x + 600
+      x: default_x + 1000
       width: 400
       color: "#70000000"
       border.width: 3

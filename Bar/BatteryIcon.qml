@@ -5,12 +5,12 @@ import ".."
 
 Rectangle { //Battery box
     id: batteryBox
-    width: 65
-    height: 24
+    width: 100
+    height: 36
     color: "transparent"
     border.color: Colors.md3.primary
     border.width: 2
-    radius: 5
+    radius: 8
     clip: true
     Layout.alignment: Qt.AlignVCenter
 
@@ -19,7 +19,7 @@ Rectangle { //Battery box
     property bool charging: device?.state === UPowerDeviceState.Charging
 
     property int barCount: {
-      if (pct >= 80) return 5
+      if (pct >= 75) return 5
       else if (pct >= 60) return 4
       else if (pct >= 30) return 3
       else if (pct >= 10) return 2
@@ -35,15 +35,15 @@ Rectangle { //Battery box
     RowLayout {
       anchors.fill: parent
       anchors.margins: batteryBox.border.width
-      anchors.leftMargin: 5
-      anchors.rightMargin: 5
+      anchors.leftMargin: 6
+      anchors.rightMargin: 6
       spacing: 2
 
       Repeater {
         model: 5
         Rectangle {
-          Layout.bottomMargin: 2
-          Layout.topMargin: 2
+          Layout.bottomMargin: 3
+          Layout.topMargin: 3
           Layout.fillWidth: true
           Layout.fillHeight: true
           color: index < batteryBox.barCount ? batteryBox.barColor : "transparent"
@@ -53,9 +53,8 @@ Rectangle { //Battery box
 
     Text {
       anchors.centerIn: parent
-      visible: pct < 100
       color: Colors.palette.primary90
-      font.pixelSize: 14
+      font.pixelSize: 24
       font.bold: true
       style: Text.Outline
       styleColor: "black"

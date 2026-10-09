@@ -38,9 +38,15 @@ ShellRoot {
         left: true
         right: true
       }
+      margins {
+        bottom: 4
+        left: 6
+        right: 6
+      }
+      WlrLayershell.namespace: "qs-bar"
       required property var modelData
       screen: modelData
-      implicitHeight: 36
+      implicitHeight: 52
       color: "transparent"
       
       Bar {

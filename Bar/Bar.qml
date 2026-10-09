@@ -40,23 +40,23 @@ Rectangle{
     Item { Layout.fillWidth: true } // pushes everything to the right
 
     Row {
-      spacing: 14
+      spacing: 24
 
       //TrayIcons {}
 
       Text {
-        height: 24
+        height: 36
         text: "󰖁"
         color: Colors.md3.primary
-        font.pixelSize: 18
+        font.pixelSize: 26
         visible: Pipewire.defaultAudioSink.audio.muted
       }
 
       BatteryIcon {}
 
       Rectangle { //System clock
-        implicitWidth: 135
-        height: 24
+        implicitWidth: 185
+        height: 36
         color: "transparent"
         radius: 8
         border.color: Colors.md3.primary
@@ -65,7 +65,7 @@ Rectangle{
           id: clockText
           anchors.centerIn: parent
           text: Qt.formatDateTime(clock.date, "hh:mm dd MMM")
-          font.pixelSize: 20
+          font.pixelSize: 28
           font.bold: true
           color: Colors.palette.primary90
         }
