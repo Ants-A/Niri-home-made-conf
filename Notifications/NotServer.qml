@@ -22,7 +22,7 @@ Scope {
   // plain `id` role for lookups while we keep the objects themselves here.
   property var activeNotifs: []
 
-  readonly property int maxPopups: 4
+  readonly property int maxPopups: 8
   readonly property int maxHistory: 20
 
   // Creates the per-toast 5s auto-expire timers.
@@ -145,11 +145,11 @@ Scope {
     }
 
     margins {
-      bottom: 54
+      bottom: 78
       right: 18
     }
 
-    width: 400
+    width: 512
     implicitHeight: 900 // tall enough for any realistic stack
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore

@@ -31,10 +31,10 @@ Rectangle {
   // dangle once the notification closes.
   property var resolveNotif: null
 
-  implicitWidth: 400
+  implicitWidth: 512
   radius: 12
   color: "#80000000"
-  border.width: 3
+  border.width: 4
   border.color: Colors.md3.primary
 
   // Left edge of the text column (moves right when an icon is shown).
@@ -98,8 +98,8 @@ Rectangle {
     id: icon
     x: 10
     y: 10
-    width: 36
-    height: 36
+    width: 52
+    height: 52
     fillMode: Image.PreserveAspectFit
     mipmap: true
     source: card.image
@@ -109,9 +109,9 @@ Rectangle {
   Column {
     id: texts
     x: card.textX
-    y: 10
+    y: 14
     width: card.textWidth
-    spacing: 4
+    spacing: 6
 
     Text {
       id: summaryText
@@ -120,7 +120,7 @@ Rectangle {
       text: card.summary
       color: "white"
       font.bold: true
-      font.pixelSize: 18
+      font.pixelSize: 24
       // Text.Wrap wraps at word boundaries; this Qt's Text.Wrap is an alias
       // of WrapAtWordBoundaryOrAnywhere, which also breaks *unbreakable* long
       // words (URLs, tokens) so they never overflow the box. maximumLineCount
@@ -137,7 +137,7 @@ Rectangle {
       text: card.body
       visible: text !== ""
       color: "white"
-      font.pixelSize: 14
+      font.pixelSize: 24
       wrapMode: Text.Wrap
       maximumLineCount: 4
       elide: Text.ElideRight
@@ -157,19 +157,19 @@ Rectangle {
     objectName: "actionRow"
     visible: card.actionList.length > 0
     x: card.textX
-    y: texts.y + texts.height + 10
-    spacing: 8
+    y: texts.y + texts.height + 14
+    spacing: 12
 
     Repeater {
       model: card.actionList
 
       delegate: Rectangle {
         objectName: "actionButton"
-        height: 28
-        radius: 7
+        height: 36
+        radius: 8
         // Darken the fill on hover for clear visual feedback.
         color: hoverArea.containsMouse ? Qt.darker(Colors.md3.primary, 1.2) : Colors.md3.primary
-        width: Math.min(actionLabel.implicitWidth + 24, 160)
+        width: Math.min(actionLabel.implicitWidth + 36, 240)
 
         Text {
           id: actionLabel

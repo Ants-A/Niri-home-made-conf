@@ -35,8 +35,8 @@ Rectangle { //Battery box
     RowLayout {
       anchors.fill: parent
       anchors.margins: batteryBox.border.width
-      anchors.leftMargin: 6
-      anchors.rightMargin: 6
+      anchors.leftMargin: 5
+      anchors.rightMargin: 5
       spacing: 2
 
       Repeater {

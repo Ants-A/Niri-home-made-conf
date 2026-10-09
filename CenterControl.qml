@@ -57,7 +57,7 @@ PanelWindow {
       color: "#70000000"
       border.width: 3
       border.color: Colors.md3.primary
-      radius: 12
+      radius: 16
 
       MouseArea {
         anchors.fill: parent
