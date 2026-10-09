@@ -9,7 +9,7 @@ import "./Notifications"
 PanelWindow {
   property bool centerOpen: false
   property var notServer
-  property var default_x: 1630
+  property var default_x: 2028
   signal toggle()
   WlrLayershell.namespace: "qs-bar"
 
@@ -48,12 +48,12 @@ PanelWindow {
       anchors {
         top: parent.top
         bottom: parent.bottom
-        rightMargin: 18
-        topMargin: 18
-        bottomMargin: 60
+        rightMargin: 20
+        topMargin: 20
+        bottomMargin: 76
       }
       x: default_x + 1000
-      width: 400
+      width: 512
       color: "#70000000"
       border.width: 3
       border.color: Colors.md3.primary
@@ -74,7 +74,7 @@ PanelWindow {
       Rectangle { // notification history
         anchors {
           fill: parent
-          topMargin: 250
+          topMargin: 400
           rightMargin: 10
           leftMargin: 10
           bottomMargin: 10
@@ -97,13 +97,13 @@ PanelWindow {
             Layout.fillWidth: true
             text: "Notifications"
             color: Colors.md3.primary
-            font.pixelSize: 18
+            font.pixelSize: 28
           }
 
           Text {
             text: "Clear All"
             color: notServer.history.count > 0 ? Colors.md3.error : Colors.palette.neutral40
-            font.pixelSize: 18
+            font.pixelSize: 28
             MouseArea {
               anchors.fill: parent
               onClicked: { notServer.history.clear() }
